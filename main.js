@@ -173,13 +173,18 @@ function draw_history() {
 
 var history_diagram = new Diagram('history', draw_history);
 
+history_diagram.reset = function() {
+  this.ctx.restore();
+}
+
+var animation_request;
 function loop() {
   update();
   phase_space.draw_once();
   position_space.draw_once();
   history_diagram.draw_once();
 
-  requestAnimationFrame(loop);
+  animation_request = requestAnimationFrame(loop);
 }
 
 document.querySelector('#damping').addEventListener('input', function(e) {
@@ -187,6 +192,16 @@ document.querySelector('#damping').addEventListener('input', function(e) {
 });
 document.querySelector('#k').addEventListener('input', function(e) {
   k = parseFloat(this.value);
+});
+document.querySelector('#restart').addEventListener('click', function(e) {
+  cancelAnimationFrame(animation_request);
+  history = [];
+  state.x = 100;
+  state.v = 0;
+  index = 0;
+  loop();
+  history_diagram.reset();
+
 });
 
 loop();
