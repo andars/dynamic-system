@@ -5,16 +5,49 @@
         font-family: Georgia;
         font-variant: small-caps;
       }
+      canvas {
+      }
+      .container {
+        display: inline-block;
+        position: relative;
+      }
+      p {
+        display: block;
+      }
     </style>
     <script src='performance-polyfill.js'></script>
   </head>
   <body>
-    <canvas id='phase_space' width='500' height='500' style='border: 1px solid black;'>
-    </canvas>
-    <canvas id='position_space' width='200' height='500' style='border: 1px solid black;'>
-    </canvas>
-    <canvas id='history' width='500' height='500' style='border: 1px solid black;'>
-    </canvas>
+    <div class='container'>
+      <canvas id='phase_space' width='500' height='500' style='border: 1px solid black;'>
+      </canvas>
+      <canvas id='phase_space_axes' width='500' height='500'
+              style='border: 1px solid black; position: absolute; top: 0; left: 0'>
+      </canvas>
+      <p style='position: absolute; z-index: 1; left: 51%; top: -2%;'>
+        position
+      </p>
+      <p style='position: absolute; z-index: 1; left: 85%; top: 42%;'>
+        velocity
+      </p>
+    </div>
+    <div class='container'>
+      <canvas id='position_space' width='200' height='500' style='border: 1px solid black;'>
+      </canvas>
+      <p style='position: absolute; z-index: 1; left: 52%; top: -2%;'>
+        position
+      </p>
+    </div>
+    <div class='container'>
+      <canvas id='history' width='500' height='500' style='border: 1px solid black;'>
+      </canvas>
+      <p style='position: absolute; z-index: 1; left: 2%; top: -2%;'>
+        position
+      </p>
+      <p style='position: absolute; z-index: 1; left: 90%; top: 42%;'>
+        time
+      </p>
+    </div>
     <label for='damping'> Damping ratio </label>
     <input type='range' id='damping' min='0.3' max='10' value='1'/>
     <br/>
