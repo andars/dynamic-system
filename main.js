@@ -178,12 +178,12 @@ function update() {
 
   if (delta > 0.1) delta = 0.01;
 
-  // push the most recent sample onto our history list
-  history.push({time: index++, x: state.x, v: state.v});
+  // push the most recent sample onto our data_history list
+  data_history.push({time: index++, x: state.x, v: state.v});
 
   // delete samples over 500 ago, keeping only the most recent 500
-  if (history.length > 500) {
-    history.shift();
+  if (data_history.length > 500) {
+    data_history.shift();
   }
 
   state = integrator(state.x, state.v, delta);
@@ -249,13 +249,13 @@ function draw_position() {
 var position_space = new Diagram('position_space', draw_position);
 var plot_v = false;
 
-var history = [];
-function draw_history() {
+var data_history = [];
+function draw_data_history() {
   var ctx = this.ctx;
   var center_x = this.canvas.width/2;
   var center_y = this.canvas.height/2;
 
-  var current_time = history[history.length-1].time;
+  var current_time = data_history[data_history.length-1].time;
   var offset = 0;
   if (current_time > this.canvas.width*2/3) {
     offset = current_time - this.canvas.width*2/3;
@@ -269,9 +269,9 @@ function draw_history() {
 
   ctx.strokeStyle = "blue";
   ctx.beginPath();
-  ctx.moveTo(0, -history[0].x+center_y);
-  for (var i = 0; i<history.length; i++) {
-    var sample = history[i];
+  ctx.moveTo(0, -data_history[0].x+center_y);
+  for (var i = 0; i<data_history.length; i++) {
+    var sample = data_history[i];
     ctx.lineTo(sample.time, -sample.x + center_y);
   }
   ctx.stroke();
@@ -280,17 +280,17 @@ function draw_history() {
 
   ctx.strokeStyle = "red";
   ctx.beginPath();
-  ctx.moveTo(0, -history[0].v+center_y);
-  for (var i = 0; i<history.length; i++) {
-    var sample = history[i];
+  ctx.moveTo(0, -data_history[0].v+center_y);
+  for (var i = 0; i<data_history.length; i++) {
+    var sample = data_history[i];
     ctx.lineTo(sample.time, -sample.v + center_y);
   }
   ctx.stroke();
 }
 
-var history_diagram = new Diagram('history', draw_history);
+var data_history_diagram = new Diagram('history', draw_data_history);
 
-history_diagram.reset = function() {
+data_history_diagram.reset = function() {
   this.ctx.restore();
 }
 
@@ -299,7 +299,7 @@ function loop() {
   update();
   phase_space.draw_once();
   position_space.draw_once();
-  history_diagram.draw_once();
+  data_history_diagram.draw_once();
 
   animation_request = requestAnimationFrame(loop);
 }
@@ -314,13 +314,13 @@ document.querySelector('#k').addEventListener('input', function(e) {
 
 function restart() {
   cancelAnimationFrame(animation_request);
-  history = [];
+  data_history = [];
   state.x = parseFloat(document.querySelector('#x_nought').value);
   state.v = parseFloat(document.querySelector('#v_nought').value);
   gamma = parseFloat(document.querySelector('#damping').value)/10;
   k = parseFloat(document.querySelector('#k').value);
   index = 0;
-  history_diagram.reset();
+  data_history_diagram.reset();
   phase_space.reset();
   loop();
 }
