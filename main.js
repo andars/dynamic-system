@@ -70,8 +70,8 @@ var state = {
 
 var index = 0;
 
-var gamma = 1;
-var k = 5;
+var gamma = 0;
+var k = 0;
 
 var now = window.performance.now();
 var last = now;
@@ -300,6 +300,8 @@ function restart() {
   history = [];
   state.x = parseFloat(document.querySelector('#x_nought').value);
   state.v = parseFloat(document.querySelector('#v_nought').value);
+  gamma = parseFloat(document.querySelector('#damping').value)/10;
+  k = parseFloat(document.querySelector('#k').value);
   index = 0;
   history_diagram.reset();
   phase_space.reset();
