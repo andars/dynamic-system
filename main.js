@@ -101,23 +101,41 @@ function update() {
   last = now;
 }
 
+var ps_prev_x = state.x;
+var ps_prev_v = state.v;
 function draw_phase_space() {
   var ctx = this.ctx;
-  ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+  //ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
   ctx.fillStyle = "blue";
   var center_x = this.canvas.width/2;
   var center_y = this.canvas.height/2;
-  ctx.fillRect(state.x+center_x-5, state.v+center_y-5, 10, 10);
+  //ctx.beginPath();
+  ctx.strokeStyle = "blue";
+  ctx.beginPath();
+  ctx.moveTo(ps_prev_x+center_x, ps_prev_v+center_y, 10, 10);
+  ctx.lineTo(state.x+center_x, state.v+center_y, 10, 10);
+  ctx.stroke();
+  ps_prev_v = state.v;
+  ps_prev_x = state.x;
+
+  ctx.clearRect(center_x+2, 0, 80, 20);
 
   ctx.fillStyle = "black";
   ctx.fillText('position', center_x+5, 15);
   var text = ctx.measureText("velocity");
+  ctx.clearRect(this.canvas.width - text.width - 5, center_y-30, 80, 20);
   ctx.fillText('velocity', this.canvas.width - text.width - 5, center_y-15);
 
   this.draw_axes();
 }
 
 var phase_space = new Diagram('phase_space', draw_phase_space);
+
+phase_space.reset = function() {
+    ps_prev_v = state.v;
+    ps_prev_x = state.x;
+    this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+}
 
 function draw_position() {
   var ctx = this.ctx;
@@ -201,6 +219,7 @@ document.querySelector('#restart').addEventListener('click', function(e) {
   index = 0;
   loop();
   history_diagram.reset();
+  phase_space.reset();
 
 });
 
