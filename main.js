@@ -346,6 +346,5 @@ dv_input.addEventListener('keyup', function(e) {
   dv_user = try_parse_fn(this, dv_user);
 });
 
-restart();
-loop();
+setTimeout(restart, 500);
 
