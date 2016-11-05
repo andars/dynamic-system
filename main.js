@@ -76,16 +76,91 @@ var k = 10;
 var now = window.performance.now();
 var last = now;
 
+function dx(x,v) {
+  return v;
+}
+
+function dv(x,v) {
+  return -gamma*v - k*x;
+}
+
+// The First Order Euler Method
+// also known as the rectangle method
+//
+// Idea is the same as the one-dimensional left hand rectangle method
+// Can also be viewed as using the first order taylor approximation
+// of the function at the current time
+//
+// This method is pretty bad for reasonable step sizes
+function euler(x, v, delta) {
+  var dv1 = dv(state.x, state.v);
+  var dx1 = dx(state.x, state.v);
+
+  return {
+    x: state.x + dx1 * delta,
+    v: state.v + dv1 * delta,
+  }
+}
+
+// The Improved Euler Method
+// also known variously as Heun's method, explicit trapezoidal rule,
+// and occasionally RK2
+//
+// Same idea as the one-dimensional trapezoidal rule
+// 1. Find derivative at current state (left endpoint)
+// 2. Find derivative at estimated next state (right endpoint)
+// 3. Use the average of the two to compute next state
+//
+// Good enough for most visualizations despite not conserving energy,
+// has difficulty with low damping and high k.
+function improved_euler(x, v, delta) {
+  // derivatives at current state
+  var dv1 = dv(state.x, state.v);
+  var dx1 = dx(state.x, state.v);
+
+  // derivatives at full step (estimated next state using dx1 and dv1)
+  var dv2 = dv(state.x + dx1*delta, state.v + dv1*delta);
+  var dx2 = dx(state.x + dx1*delta, state.v + dv1*delta);
+
+  // use the average to estimate the next state
+  return {
+    x: state.x + 0.5 * (dx1 + dx2) * delta,
+    v: state.v + 0.5 * (dv1 + dv2) * delta,
+  }
+}
+
+// Runge Kutta Fourth Order Method
+function rk4(x, v, delta) {
+  // derivatives at current state
+  var dv1 = dv(state.x, state.v);
+  var dx1 = dx(state.x, state.v);
+
+  // derivatives at half step, using dx1 and dv1
+  var dv2 = dv(state.x + 0.5*dx1*delta, state.v + 0.5*dv1*delta);
+  var dx2 = dx(state.x + 0.5*dx1*delta, state.v + 0.5*dv1*delta);
+
+  // derivatives at half step, using dx2 and dv2
+  var dv3 = dv(state.x + 0.5*dx2*delta, state.v + 0.5*dv2*delta);
+  var dx3 = dx(state.x + 0.5*dx2*delta, state.v + 0.5*dv2*delta);
+
+  // derivatives at full step, using dx3 and dv3
+  var dv4 = dv(state.x + dx3*delta, state.v + dv3*delta);
+  var dx4 = dx(state.x + dx3*delta, state.v + dv3*delta);
+
+  // average the four derivatives, with double weight on d_2 and d_3
+  return {
+    x: state.x + (1/6)*delta*(dx1 + 2*dx2 + 2*dx3 + dx4),
+    v: state.v + (1/6)*delta*(dv1 + 2*dv2 + 2*dv3 + dv4),
+  }
+}
+
+var integrator = improved_euler;
+
 function update() {
   now = window.performance.now();
   var delta = (now - last)/1000; // in seconds
 
   if (delta > 0.1) delta = 0.01;
-
-  var dv1 = -gamma*state.x - k*state.x;
-  var dx1 = state.v;
-  var dv2 = -gamma*(state.v + dv1*delta);
-  var dx2 = state.v + dx1*delta;
 
   // push the most recent sample onto our history list
   history.push({time: index++, position: state.x});
@@ -95,8 +170,7 @@ function update() {
     history.shift();
   }
 
-  state.x += 0.5 * (dx1 + dx2) * delta;
-  state.v += 0.5 * (dv1 + dv2) * delta;
+  state = integrator(state.x, state.v, delta);
 
   last = now;
 }
@@ -140,15 +214,15 @@ ps_axes.draw_once();
 
 function draw_position() {
   var ctx = this.ctx;
+  var center_x = this.canvas.width/2;
+  var center_y = this.canvas.height/2;
   ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+
+  this.draw_axis_y();
 
   // draw object
   ctx.fillStyle = "blue";
-  var center_x = this.canvas.width/2;
-  var center_y = this.canvas.height/2;
-  ctx.fillRect(center_x-5, state.x+center_y-5, 10, 10);
-
-  this.draw_axis_y();
+  ctx.fillRect(center_x-7, state.x+center_y-3, 14, 6);
 }
 
 var position_space = new Diagram('position_space', draw_position);
