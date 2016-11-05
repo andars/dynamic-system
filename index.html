@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Georgia;
+        font-variant: small-caps;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id='phase_space' width='500' height='500' style='border: 1px solid black;'>
+    </canvas>
+    <canvas id='position_space' width='200' height='500' style='border: 1px solid black;'>
+    </canvas>
+    <canvas id='history' width='500' height='500' style='border: 1px solid black;'>
+    </canvas>
+    <label for='damping'> Damping ratio </label>
+    <input type='range' id='damping' min='0.3' max='10' value='1'/>
+    <br/>
+    <label for='k'> Spring constant </label>
+    <input type='range' id='k' min='0' max='50' value='10' />
+    <script src='main.js'></script>
+  </body>
+</html>
