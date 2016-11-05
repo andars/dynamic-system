@@ -288,7 +288,7 @@ function loop() {
 }
 
 document.querySelector('#damping').addEventListener('input', function(e) {
-  gamma = parseFloat(this.value);
+  gamma = parseFloat(this.value)/10;
 });
 
 document.querySelector('#k').addEventListener('input', function(e) {
