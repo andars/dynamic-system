@@ -179,7 +179,7 @@ function update() {
   if (delta > 0.1) delta = 0.01;
 
   // push the most recent sample onto our history list
-  history.push({time: index++, position: state.x});
+  history.push({time: index++, x: state.x, v: state.v});
 
   // delete samples over 500 ago, keeping only the most recent 500
   if (history.length > 500) {
@@ -202,8 +202,8 @@ function draw_phase_space() {
 
   ctx.strokeStyle = "blue";
   ctx.beginPath();
-  ctx.moveTo(-ps_prev_v+center_x, -ps_prev_x+center_y, 10, 10);
-  ctx.lineTo(-state.v+center_x, -state.x+center_y, 10, 10);
+  ctx.moveTo(ps_prev_v+center_x, -ps_prev_x+center_y, 10, 10);
+  ctx.lineTo(state.v+center_x, -state.x+center_y, 10, 10);
   ctx.stroke();
 
   ps_prev_v = state.v;
@@ -239,9 +239,15 @@ function draw_position() {
   // draw object
   ctx.fillStyle = "blue";
   ctx.fillRect(center_x-7, -state.x+center_y-3, 14, 6);
+
+  if (!plot_v) return;
+  ctx.fillStyle = "red";
+  ctx.fillRect(center_x-7, -state.v+center_y-3, 14, 6);
+
 }
 
 var position_space = new Diagram('position_space', draw_position);
+var plot_v = false;
 
 var history = [];
 function draw_history() {
@@ -263,10 +269,21 @@ function draw_history() {
 
   ctx.strokeStyle = "blue";
   ctx.beginPath();
-  ctx.moveTo(0, -history[0].position+center_y);
+  ctx.moveTo(0, -history[0].x+center_y);
   for (var i = 0; i<history.length; i++) {
     var sample = history[i];
-    ctx.lineTo(sample.time, -sample.position + center_y);
+    ctx.lineTo(sample.time, -sample.x + center_y);
+  }
+  ctx.stroke();
+
+  if (!plot_v) return;
+
+  ctx.strokeStyle = "red";
+  ctx.beginPath();
+  ctx.moveTo(0, -history[0].v+center_y);
+  for (var i = 0; i<history.length; i++) {
+    var sample = history[i];
+    ctx.lineTo(sample.time, -sample.v + center_y);
   }
   ctx.stroke();
 }
@@ -344,6 +361,10 @@ var dv_input = document.querySelector('#dv_equation');
 dv_input.value = fn_body(dv_user);
 dv_input.addEventListener('keyup', function(e) {
   dv_user = try_parse_fn(this, dv_user);
+});
+
+document.querySelector('#plot_v').addEventListener('click', function(e) {
+    plot_v = this.checked;
 });
 
 setTimeout(restart, 500);
