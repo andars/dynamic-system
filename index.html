@@ -1,17 +1,23 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset='utf-8'/>
+    <title> Visualizing Dynamic Systems </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script>
     <style>
       body {
         font-family: Georgia;
-        font-variant: small-caps;
         background-color: #fbfaf8;
+        line-height:1.4em;
       }
       canvas {
       }
       .container {
         display: inline-block;
         position: relative;
+        font-variant: small-caps;
       }
       .overlay {
         display: block;
@@ -28,19 +34,20 @@
       .inputdiv {
         margin: 10px;
         float: left;
+        font-variant: small-caps;
       }
-      ul {
+      .inputdiv ul {
         list-style-type: none;
         margin-top: 0;
       }
-      input[type='text'] {
-        width: 200;
+      input.derivative {
+        width: 200px;
       }
       .var {
         font-variant: normal;
         font-style: italic;
       }
-      p {
+      #explain > p {
         font-variant: normal;
       }
     </style>
@@ -78,7 +85,7 @@
       <label for='damping'>
         Damping ratio (<span class='var'> γ </span>)
       </label>
-      <input type='range' id='damping' min='0' max='10' value='1'/>
+      <input type='range' id='damping' min='0' max='100' value='1'/>
       <br/>
       <label for='k'>
         Spring constant (<span class='var'> k </span>)
@@ -88,14 +95,14 @@
       <input type='button' id='restart' value='Restart'> </input>
       <br/>
     </div>
-    <div class='inputdiv'>
+    <div class='inputdiv' id='derivatives'>
       <ul>
         <li>
-          <label for='dx_equation' > dx: </label>
+        <label for='dx_equation' > $\frac{dx}{dt}$ </label>
           <input type='text' class='derivative' id='dx_equation'/>
         </li>
         <li>
-          <label for='dv_equation' style=''> dv: </label>
+        <label for='dv_equation' style=''> $\frac{dv}{dt}$ </label>
           <input type='text' class='derivative' id='dv_equation'/>
         </li>
       </ul>
@@ -113,20 +120,344 @@
       </ul>
     </div>
     <br/>
-    <div style='clear:both; width: 60%;'>
-      <h3> Explanation </h3>
+    <div style='clear:both; width: 60%; padding-left: 5%;' id='explain'>
+      <h2> Explanation </h2>
       <p>
+
         This page provides a visualization for dynamic systems (systems that
-        are described by differential equations).
+        are described by differential equations). It is capable of working with
+        one dimensional systems of first or second order. While working only
+        with one dimensional systems is a limitation, it nonetheless allows for
+        plenty of freedom to explore and makes visualizations significantly
+        simpler.
+
+      </p>
+
+      <p>
+        There are some rather large and possibly intimidating equations below.
+        If you aren't familiar with differential equations, get what you can
+        out of them and move on. Hopefully the text explains what is going on
+        well enough that you can do without the equations.
+
+      </p>
+      <h3> Overview </h3>
+      <p>
+
+        The visualization shows three different representations of the same
+        system. The second and third are probably familiar to you, but the
+        first may not be. I will go over the representations in reverse order.
+
+      </p>
+      <p>
+
+        The third shows a plot of the variable $x$ over time. This is a fairly
+        standard representation of a one dimensional system. For the default
+        system, it should display a damped sinusoid.
+
+      </p>
+      <p>
+
+        The second shows the current position of the particle (or the current
+        value of the variable, if we aren't dealing with a mechanical system).
+        This is the same information as in the third representation, but it only
+        display the value at the current instant.
+
+      </p>
+      <p>
+
+        The first is a bit stranger. The horizontal axis is the velocity of the
+        particle (again, doesn't have to be a particle, so just rate of change)
+        and the vertical axis is the value of the variable. Together, they form
+        what is called a <em> phase portrait </em>. This type of diagram shows
+        the complete state of the system as a function of time. Time appears
+        only implicitly as the path is traced out; it doesn't appear on either
+        axis. Note that for the default system (and all mechanical systems) the
+        speed of the trace moving vertically along the position axis is equal
+        to the distance away from the y-axis (the velocity). This is expected,
+        because the velocity is just the directed speed of the particle.
+
+      <p>
+
+
+      </p>
+
+      <h3> The Harmonic Oscillator </h3>
+      <p>
+        Another quick note: $\frac{dx}{dt}$ is exactly the same as $x'(t)$, and
+        I mix the two notations freely in the below. Both refer to the rate
+        of change of the variable, $x$ in this case.
+
       </p>
       <p>
 
         The default system is a damped harmonic oscillator. This type of system
         shows up often in physics, whether as a spring-mass system or an RLC
-        circuit.
+        circuit. The governing differential equation of this system is
 
+        \[ m \frac{d^2x}{dt^2} + \gamma \frac{dx}{dt} + k x = F(t), \]
+
+        where $F(t)$ is an applied external force. In the following, I will
+        assume $m = 1$ and $F(t) = 0$.
+
+      </p>
+      <p>
+
+        In order to numerically solve this system, we decompose it into two
+        first order differential equations. This is a neat trick that generalizes
+        to decompose any $n$th-order differential equations into $n$ first order
+        equations. I feel that this representation is actually superior to the
+        second order equation because it allows more intuition than the above
+        equation, especially for mechanical systems. When deriving the governing
+        equation, however, it is often easier to use the single second order
+        ODE.
+
+      </p>
+      <p>
+
+      The idea is to introduce an auxiliary variable $v(t) = x'(t)$. Using the
+      original equation, we can now form two equations:
+
+      \[ \frac{dx}{dt} = v.\]
+      \[ \frac{dv}{dt} = -\gamma v - k x \]
+
+      What do these equations mean? The first one is more simple that it appears,
+      it is just saying that the rate of change of position, $x(t)$, is equal
+      to the velocity, $v(t)$. That is just the definition of velocity.
+
+      </p>
+
+      <p>
+
+      How about the second equation? $v'(t)$ is the acceleration, so it says
+      that the force (by $F = ma$ with $m=1$) on the particle is opposing
+      the motion (the negative signs) and is proportional to both the velocity
+      and the position. The portion $-k x$ is a <em> restoring force </em>
+      because it pushes the particle back toward position zero. The portion $-
+      \gamma v$ is a <em> damping force </em> because it resists the motion of
+      the particle and tends to slow the particle to a halt.
+
+      </p>
+      <p>
+
+      Now we are prepared to start playing around with the visualization above.
+      Try moving the sliders for the damping and spring constant and see what
+      happens.
+
+      </p>
+      <p>
+
+      You can also try modifying the initial values of the system using the
+      two boxes on the right hand side and restarting.
+
+      </p>
+      <p>
+      Note that the center text fields for $\frac{dx}{dt}$ and $\frac{dv}{dt}$
+      are the two first order equations above transcribed into javascript code.
+      </p>
+
+      <h3> Other Systems </h3>
+      <p>
+
+      Now that we have seen what each of the parameters of the visualization
+      are, we are ready to start looking at systems with entirely different
+      behaviour, not just variations on the harmonic oscillator.
+
+      </p>
+      <p>
+
+      If you are familiar with dynamic systems, go ahead and make some
+      modifications to the derivatives in the center text fields. If the field
+      is highlighted in red, it means that you have an error in your
+      expression, possibly a missing semicolon at the end.  The variables
+      <code> x </code> and <code> v </code> represent your variable and its
+      rate of change. In addition <code> gamma </code> and <code> k </code> are
+      the variables controlled by the sliders on the left. They aren't
+      mandatory, and you can just directly enter constants as well, like this:
+      <code> return -5*v - 14*x; </code>
+
+      </p>
+      <p>
+
+      If you aren't familiar with dynamic systems, I'll provide some
+      possibilities that you may like to try. Under each heading below, there
+      are expressions for the two derivatives. Copy and paste should work, or
+      you can just type them in yourself. The visualization will probably
+      go weird while you are editing, so hit restart when you are ready.
+
+      </p>
+
+      <h4> Exponential Growth </h4>
+
+      <p>
+      $\frac{dx}{dt}$: <code> return x/gamma; </code>
+      <br/>
+      <br/>
+      $\frac{dv}{dt}$: <code> return 0; </code>
+      <br/>
+      <br/>
+      Initial x value: <code> 10 </code>
+      </p>
+      <p>
+      This is actually a first order system, since we are ignoring the second
+      derivative entirely. As a result, the phase portrait is pretty boring,
+      but the second and third representations work well.
+
+      <p>
+      <p/>
+
+      This will give you an exponential curve in the third plot, and the second
+      plot will show the block moving upwards slowly at first but increasing in
+      speed.
+
+      <p>
+      <p/>
+      Because of the exponential nature of this system, the visualization is
+      short-lived. The variables will all be off the charts after just a few
+      seconds.
+
+      </p>
+
+      <p>
+
+      Exponential growth is used to model all kinds of phenomena in many different
+      fields. For example, it is a fairly good model for:
+      <ul>
+        <li> Human population growth </li>
+        <li> Continuous compound interest. This never actually happens, since
+        your interest is only compounded at finite intervals, i.e. yearly, but
+        the idea is the same </li>
+        <li> Number of transistors on a chip </li>
+        <li> Chain reactions of nuclear fission, as occurs when nuclear weapons detonate</li>
+      </ul>
+
+      </p>
+
+      <h4> Logistic Growth </h4>
+
+      <p>
+      $\frac{dx}{dt}$: <code> return gamma*x*(1-x/(5*k+1)); </code>
+      <br/>
+      <br/>
+      $\frac{dv}{dt}$: <code> return 0; </code>
+      <br/>
+      <br/>
+      Initial x value: <code> 0 to 50 </code>
+      </p>
+
+      <p>
+
+      Another first order system. While exponential growth is a good model for
+      many things over relatively short timescales, it has the unfortunate
+      problem that it quickly predicts values going to infinity. The physical
+      world, however, doesn't tend to like infinities. As some examples,
+      population growth (of any population) is limited by food supply and other
+      factors and chemical reactions are limited by concentrations of the
+      reactants.
+
+      </p>
+      <p>
+
+      In these cases, logistic growth is a better model. At the beginning it
+      exhibits near exponential growth, but the value levels off as it approaches
+      the system's <em> carrying capacity </em>. In the above expression,
+      <code> gamma </code> represents the growth rate of the system, and
+      <code> k </code> represents the carrying capacity of the system.
+
+      </p>
+      <p>
+      Logistic growth is used to model systems such as:
+      <ul>
+        <li> More realistic population growth</li>
+        <li><a href='https://en.wikipedia.org/wiki/Diffusion_of_innovations'> Adoption of a new technology </a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Tipping_point_(sociology)"> Tipping points of various kinds </a></li>
+        <li> Tumor growth </li>
+      </ul>
+      In addition, while the differential equation is not directly used, the
+      logistic function (the plot on the far right) has applications in neural
+      networks as an activation function and in machine learning (see
+      <a href='https://en.wikipedia.org/wiki/Logistic_regression'> logistic regression </a>).
+      </p>
+      <p>
+
+      Play around with the parameters to see their effects. If you are feeling
+      Malthusian, increase the carrying capacity initially and then quickly
+      decrease it. This will demonstrate a <a
+        href='https://en.wikipedia.org/wiki/Malthusian_catastrophe'> Malthusian
+        catastrophe </a>.
+
+      </p>
+
+      <h4> Van der Pol oscillator </h4>
+
+      <p>
+      $\frac{dx}{dt}$: <code> return v; </code>
+      <br/>
+      <br/>
+      $\frac{dv}{dt}$: <code> return gamma/2*(1-x*x/2500)*v - k/10*x; </code>
+      <br/>
+      <br/>
+      Initial x value: <code> 100 to 200 </code>
+      </p>
+
+      <p>
+
+      A more complex and interesting oscillator than the harmonic oscillator
+      described above. By comparing this equation to that of the damped
+      harmonic oscillator, we can see that the restoring force term is identical,
+      but the damping is nonlinearly dependent on $x$.
+
+      </p>
+      <p>
+
+      Here, <code> gamma </code> represents the damping coefficient, and
+      <code> k </code> represents the restoring coefficient, just like in
+      the harmonic oscillator system.
+
+      </p>
+      <p>
+
+      This oscillator exhibits interesting <em> limit cycles </em>, which are
+      cyclic trajectories in phase space that the system tends towards.
+
+      </p>
+      <p>
+
+      The Van der Pol oscillator is a good model for <a
+        href='https://en.wikipedia.org/wiki/Relaxation_oscillator'> relaxation
+        oscillators </a>, which are widely used as an oscillator in applications
+      where an accurate frequency is not required and the waveform can be a bit
+      strange. Think of this when you turn your windshield wipers on in the rain
+      or watch blinking turn signals almost synchronize at red lights.
+
+      </p>
+
+      <h4> possibly more to come... </h4>
     </div>
 
     <script src='main.js'></script>
+    <script>
+      renderMathInElement(
+          document.getElementById("explain"),
+          {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "\\[", right: "\\]", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false}
+              ]
+          }
+      );
+      renderMathInElement(
+          document.getElementById("derivatives"),
+          {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "\\[", right: "\\]", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false}
+              ]
+          }
+      );
+    </script>
   </body>
 </html>
