@@ -64,24 +64,40 @@ Diagram.prototype.mouse = function() {
 }
 
 var state = {
-  x: 100,
+  x: 0,
   v: 0,
 };
 
 var index = 0;
 
 var gamma = 1;
-var k = 10;
+var k = 5;
 
 var now = window.performance.now();
 var last = now;
 
-function dx(x,v) {
+function dx_user(x,v) {
   return v;
+  }
+
+function dx(x,v) {
+  var d = dx_user(x,v);
+  if (typeof d === 'undefined' || isNaN(d)) {
+    return 0;
+  }
+  return d;
+}
+
+function dv_user(x,v) {
+  return -gamma*v - k*x;
 }
 
 function dv(x,v) {
-  return -gamma*v - k*x;
+  var d = dv_user(x,v);
+  if (typeof d === 'undefined' || isNaN(d)) {
+    return 0;
+  }
+  return d;
 }
 
 // The First Order Euler Method
@@ -186,8 +202,8 @@ function draw_phase_space() {
 
   ctx.strokeStyle = "blue";
   ctx.beginPath();
-  ctx.moveTo(ps_prev_v+center_x, ps_prev_x+center_y, 10, 10);
-  ctx.lineTo(state.v+center_x, state.x+center_y, 10, 10);
+  ctx.moveTo(-ps_prev_v+center_x, -ps_prev_x+center_y, 10, 10);
+  ctx.lineTo(-state.v+center_x, -state.x+center_y, 10, 10);
   ctx.stroke();
 
   ps_prev_v = state.v;
@@ -222,7 +238,7 @@ function draw_position() {
 
   // draw object
   ctx.fillStyle = "blue";
-  ctx.fillRect(center_x-7, state.x+center_y-3, 14, 6);
+  ctx.fillRect(center_x-7, -state.x+center_y-3, 14, 6);
 }
 
 var position_space = new Diagram('position_space', draw_position);
@@ -247,10 +263,10 @@ function draw_history() {
 
   ctx.strokeStyle = "blue";
   ctx.beginPath();
-  ctx.moveTo(0, history[0]+center_y);
+  ctx.moveTo(0, -history[0].position+center_y);
   for (var i = 0; i<history.length; i++) {
     var sample = history[i];
-    ctx.lineTo(sample.time, sample.position + center_y);
+    ctx.lineTo(sample.time, -sample.position + center_y);
   }
   ctx.stroke();
 }
@@ -274,19 +290,60 @@ function loop() {
 document.querySelector('#damping').addEventListener('input', function(e) {
   gamma = parseFloat(this.value);
 });
+
 document.querySelector('#k').addEventListener('input', function(e) {
   k = parseFloat(this.value);
 });
-document.querySelector('#restart').addEventListener('click', function(e) {
+
+function restart() {
   cancelAnimationFrame(animation_request);
   history = [];
-  state.x = 100;
-  state.v = 0;
+  state.x = parseFloat(document.querySelector('#x_nought').value);
+  state.v = parseFloat(document.querySelector('#v_nought').value);
   index = 0;
   history_diagram.reset();
   phase_space.reset();
   loop();
+}
+
+document.querySelector('#restart').addEventListener('click', restart);
+
+function fn_body(fn) {
+  var source = fn.toString();
+  return source.slice(source.indexOf('{')+1, source.lastIndexOf('}')).trim();
+}
+
+function try_parse_fn(node, default_fn) {
+  var fn;
+  var error = false;
+  try {
+    fn = new Function('x', 'v', node.value);
+  } catch (e) {
+    error = true;
+    this
+  }
+
+  if (error) {
+    node.classList.add('error');
+    return default_fn
+  } else {
+    node.classList.remove('error');
+    return fn;
+  }
+}
+
+var dx_input = document.querySelector('#dx_equation');
+dx_input.value = fn_body(dx_user);
+dx_input.addEventListener('keyup', function(e) {
+  dx_user = try_parse_fn(this, dx_user);
 });
 
+var dv_input = document.querySelector('#dv_equation');
+dv_input.value = fn_body(dv_user);
+dv_input.addEventListener('keyup', function(e) {
+  dv_user = try_parse_fn(this, dv_user);
+});
+
+restart();
 loop();
 

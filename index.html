@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta charset='utf-8'/>
     <style>
       body {
         font-family: Georgia;
@@ -16,6 +17,31 @@
         display: block;
         position: absolute;
         z-index: 1;
+      }
+      .derivative {
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-size: 0.6em;
+      }
+      .derivative.error {
+        background-color: rgba(200,0,0,0.2);
+      }
+      .inputdiv {
+        margin: 10px;
+        float: left;
+      }
+      ul {
+        list-style-type: none;
+        margin-top: 0;
+      }
+      input[type='text'] {
+        width: 200;
+      }
+      .var {
+        font-variant: normal;
+        font-style: italic;
+      }
+      p {
+        font-variant: normal;
       }
     </style>
     <script src='performance-polyfill.js'></script>
@@ -44,22 +70,63 @@
     <div class='container'>
       <canvas id='history' width='500' height='500'>
       </canvas>
-      <!--
-      <p class='overlay' style='left: 2%; top: -2%;'>
-        position
-      </p>
-      -->
       <p class='overlay' style='left: 90%; top: 42%;'>
         time
       </p>
     </div>
-    <label for='damping'> Damping ratio </label>
-    <input type='range' id='damping' min='0.3' max='10' value='1'/>
+    <div class='inputdiv'>
+      <label for='damping'>
+        Damping ratio (<span class='var'> γ </span>)
+      </label>
+      <input type='range' id='damping' min='0' max='10' value='1'/>
+      <br/>
+      <label for='k'>
+        Spring constant (<span class='var'> k </span>)
+      </label>
+      <input type='range' id='k' min='0' max='50' value='5' />
+      <br/>
+      <input type='button' id='restart' value='Restart'> </input>
+      <br/>
+    </div>
+    <div class='inputdiv'>
+      <ul>
+        <li>
+          <label for='dx_equation' > dx: </label>
+          <input type='text' class='derivative' id='dx_equation'/>
+        </li>
+        <li>
+          <label for='dv_equation' style=''> dv: </label>
+          <input type='text' class='derivative' id='dv_equation'/>
+        </li>
+      </ul>
+    </div>
+    <div class='inputdiv'>
+      <ul>
+        <li>
+          <label for='x_nought' > initial x: </label>
+          <input type='text' class='derivative' id='x_nought' value='100'/>
+        </li>
+        <li>
+          <label for='v_nought' style=''> initial v: </label>
+          <input type='text' class='derivative' id='v_nought' value='0'/>
+        </li>
+      </ul>
+    </div>
     <br/>
-    <label for='k'> Spring constant </label>
-    <input type='range' id='k' min='0' max='50' value='10' />
-    <br/>
-    <input type='button' id='restart' value='Restart'> </input>
+    <div style='clear:both; width: 60%;'>
+      <h3> Explanation </h3>
+      <p>
+        This page provides a visualization for dynamic systems (systems that
+        are described by differential equations).
+      </p>
+      <p>
+
+        The default system is a damped harmonic oscillator. This type of system
+        shows up often in physics, whether as a spring-mass system or an RLC
+        circuit.
+
+    </div>
+
     <script src='main.js'></script>
   </body>
 </html>
