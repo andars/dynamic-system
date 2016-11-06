@@ -3,7 +3,7 @@
   <head>
     <meta charset='utf-8'/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Visualizing Dynamic Systems </title>
+    <title> Visualizing Dynamical Systems </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script>
@@ -11,7 +11,7 @@
     <script src='performance-polyfill.js'></script>
   </head>
   <body>
-    <h1> Visualizing Dynamic Systems </h1>
+    <h1> Visualizing Dynamical Systems </h1>
     <div class='container'>
       <canvas id='phase_space'>
       </canvas>
@@ -87,7 +87,7 @@
       <h2> Explanation </h2>
       <p>
 
-        This page provides a visualization for dynamic systems (systems that
+        This page provides a visualization for dynamical systems (systems that
         are described by differential equations). It is capable of working with
         one dimensional systems of first or second order. While working only
         with one dimensional systems is a limitation, it nonetheless allows for
@@ -228,7 +228,7 @@
       </p>
       <p>
 
-      If you are familiar with dynamic systems, go ahead and make some
+      If you are familiar with dynamical systems, go ahead and make some
       modifications to the derivatives in the center text fields. If the field
       is highlighted in red, it means that you have an error in your
       expression, possibly a missing semicolon at the end.  The variables
@@ -241,7 +241,7 @@
       </p>
       <p>
 
-      If you aren't familiar with dynamic systems, I'll provide some
+      If you aren't familiar with dynamical systems, I'll provide some
       possibilities that you may like to try. Under each heading below, there
       are expressions for the two derivatives. Copy and paste should work, or
       you can just type them in yourself. The visualization will probably
@@ -249,7 +249,11 @@
 
       </p>
 
-      <h4> Exponential Growth </h4>
+      <h4> Exponential Growth
+      <a class='system' href='#dx=return%20x%2Fgamma%3B&dv=return%200%3B&x0=10&gamma=4'>
+        [activate]</a>
+      </h4>
+
 
       <p>
       $\frac{dx}{dt}$: <code> return x/gamma; </code>
@@ -295,7 +299,10 @@
 
       </p>
 
-      <h4> Logistic Growth </h4>
+      <h4> Logistic Growth
+        <a class='system' href='#dx=return%20gamma*x*(1-x%2F(5*k%2B1))%3B&dv=return%200%3B&x0=25&k=40&gamma=2&x0=2'>
+          [activate]</a>
+      </h4>
 
       <p>
       $\frac{dx}{dt}$: <code> return gamma*x*(1-x/(5*k+1)); </code>
@@ -350,7 +357,10 @@
 
       </p>
 
-      <h4> Van der Pol oscillator </h4>
+      <h4> Van der Pol oscillator
+      <a class='system' href='#dx=return%20v%3B&dv=return%20gamma%2F2*(1-x*x%2F2500)*v%20-%20k%2F10*x%3B&x0=150&gamma=2.8&k=17'>
+        [activate]</a>
+      </h4>
 
       <p>
       $\frac{dx}{dt}$: <code> return v; </code>
@@ -394,7 +404,10 @@
 
       </p>
 
-      <h4> Predator-Prey </h4>
+      <h4> Predator-Prey
+      <a class='system' href='#dx=return%205*x%20-%200.08*x*v%3B&dv=return%200.26*x*v%20-%2010*v%3B&x0=15&v0=15&plot_v=true'>
+        [activate]</a>
+      </h4>
       <p>
       $\frac{dx}{dt}$: <code> return 5*x - 0.08*x*v; </code>
       <br/>
@@ -451,6 +464,11 @@
       This works pretty poorly on mobile devices, which is unfortunate. I
       don't have the requisite skills to do this quickly, so better mobile
       support may not happen for a while or ever :(.
+
+      </p>
+      <p>
+
+      <strong> EDIT: </strong> mobile support is a bit better now
 
       </p>
 

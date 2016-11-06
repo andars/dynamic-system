@@ -10,6 +10,16 @@ document.addEventListener('mousemove', function(event) {
   Mouse.y = event.clientY;
 });
 
+function parse_hash_params() {
+  var query = location.hash.substr(1);
+  var result = {};
+  query.split("&").forEach(function(part) {
+    var item = part.split("=");
+    result[item[0]] = decodeURIComponent(item[1]);
+  });
+  return result;
+}
+
 function Diagram(id, draw, width) {
   this.canvas = document.getElementById(id);
   this.canvas.width = width;
@@ -211,8 +221,8 @@ function draw_phase_space() {
 
   ps_prev_v = state.v;
   ps_prev_x = state.x;
-
   ctx.restore();
+
 }
 
 var phase_space = new Diagram('phase_space', draw_phase_space,
@@ -321,20 +331,59 @@ document.querySelector('#k').addEventListener('input', function(e) {
   k = parseFloat(this.value);
 });
 
-function restart() {
+function restart(clicked) {
+  var clicked = typeof clicked === 'undefined' ? false : clicked;
+
+  console.log('restarting');
   cancelAnimationFrame(animation_request);
+
+  if (!clicked) {
+    var parameters = parse_hash_params();
+    if ('gamma' in parameters) {
+      document.querySelector('#damping').value = parseFloat(parameters.gamma)*10;
+    }
+    if ('k' in parameters) {
+      document.querySelector('#k').value = parameters.k;
+    }
+    if ('x0' in parameters) {
+      document.querySelector('#x_nought').value = parameters.x0;
+    }
+    if ('v0' in parameters) {
+      document.querySelector('#v_nought').value = parameters.v0;
+    }
+    if ('plot_v' in parameters) {
+      document.querySelector('#plot_v').checked = parameters.plot_v === 'true';
+    } else {
+      document.querySelector('#plot_v').checked = false;
+    }
+
+    if ('dx' in parameters) {
+      var dxf = document.querySelector('#dx_equation');
+      dxf.value = parameters.dx;
+      dx_user = try_parse_fn(dxf, dx_user);
+    }
+    if ('dv' in parameters) {
+      var dvf = document.querySelector('#dv_equation');
+      dvf.value = parameters.dv;
+      dv_user = try_parse_fn(dvf, dv_user);
+    }
+  }
+
   data_history = [];
   state.x = parseFloat(document.querySelector('#x_nought').value);
   state.v = parseFloat(document.querySelector('#v_nought').value);
   gamma = parseFloat(document.querySelector('#damping').value)/10;
   k = parseFloat(document.querySelector('#k').value);
+  plot_v = document.querySelector('#plot_v').checked;
   index = 0;
   data_history_diagram.reset();
   phase_space.reset();
   loop();
 }
 
-document.querySelector('#restart').addEventListener('click', restart);
+document.querySelector('#restart').addEventListener('click', function(e) {
+  restart(true);
+});
 
 function fn_body(fn) {
   var source = fn.toString();
@@ -378,3 +427,11 @@ document.querySelector('#plot_v').addEventListener('click', function(e) {
 
 setTimeout(restart, 500);
 
+Array.prototype.forEach.call(document.querySelectorAll('.system'), function (node) {
+  node.addEventListener('click', function(e) {
+    e.preventDefault();
+    console.log('activating system');
+    history.replaceState(undefined, undefined, this.hash);
+    restart();
+  });
+});
