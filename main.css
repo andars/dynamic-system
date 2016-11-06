@@ -1,0 +1,69 @@
+body {
+  font-family: Georgia;
+  background-color: #fbfaf8;
+  line-height:1.4em;
+}
+
+.container {
+  position: relative;
+  font-variant: small-caps;
+  float: left;
+}
+
+.overlay {
+  display: block;
+  position: absolute;
+  z-index: 1;
+}
+
+.derivative {
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.6em;
+}
+
+.derivative.error {
+  background-color: rgba(200,0,0,0.2);
+}
+
+.inputdiv {
+  margin: 10px;
+  float: left;
+  font-variant: small-caps;
+}
+
+.inputdiv ul {
+  list-style-type: none;
+  margin-top: 0;
+}
+
+input.derivative {
+  width: 200px;
+}
+
+.var {
+  font-variant: normal;
+  font-style: italic;
+}
+
+#explain {
+  clear: both;
+  width: 60%;
+  padding-left: 5%;
+}
+
+#explain > p {
+  font-variant: normal;
+}
+
+@media screen and (max-width: 850px) {
+
+#explain {
+  width: 90%;
+}
+
+#initial_values {
+  clear: left;
+}
+
+
+}

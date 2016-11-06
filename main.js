@@ -10,9 +10,10 @@ document.addEventListener('mousemove', function(event) {
   Mouse.y = event.clientY;
 });
 
-
-function Diagram(id, draw) {
+function Diagram(id, draw, width) {
   this.canvas = document.getElementById(id);
+  this.canvas.width = width;
+  this.canvas.height = Math.min(window.innerWidth/1.618, 500);
   this.ctx = this.canvas.getContext('2d');
   this.ctx.font = "16px sans-serif";
   this.drawfn = draw;
@@ -196,21 +197,26 @@ var ps_prev_v = state.v;
 function draw_phase_space() {
   var ctx = this.ctx;
 
+  ctx.save();
   ctx.fillStyle = "blue";
   var center_x = this.canvas.width/2;
   var center_y = this.canvas.height/2;
+  ctx.translate(center_x, center_y);
 
   ctx.strokeStyle = "blue";
   ctx.beginPath();
-  ctx.moveTo(ps_prev_v+center_x, -ps_prev_x+center_y, 10, 10);
-  ctx.lineTo(state.v+center_x, -state.x+center_y, 10, 10);
+  ctx.moveTo(ps_prev_v, -ps_prev_x, 10, 10);
+  ctx.lineTo(state.v, -state.x, 10, 10);
   ctx.stroke();
 
   ps_prev_v = state.v;
   ps_prev_x = state.x;
+
+  ctx.restore();
 }
 
-var phase_space = new Diagram('phase_space', draw_phase_space);
+var phase_space = new Diagram('phase_space', draw_phase_space,
+                              window.innerWidth*0.42);
 
 phase_space.reset = function() {
     ps_prev_v = state.v;
@@ -225,7 +231,8 @@ function draw_ps_axes() {
   this.draw_axes();
 }
 
-var ps_axes = new Diagram('phase_space_axes', draw_ps_axes);
+var ps_axes = new Diagram('phase_space_axes', draw_ps_axes,
+                          window.innerWidth*0.42);
 ps_axes.draw_once();
 
 function draw_position() {
@@ -246,7 +253,8 @@ function draw_position() {
 
 }
 
-var position_space = new Diagram('position_space', draw_position);
+var position_space = new Diagram('position_space', draw_position,
+                                 window.innerWidth * 0.10);
 var plot_v = false;
 
 var data_history = [];
@@ -288,7 +296,8 @@ function draw_data_history() {
   ctx.stroke();
 }
 
-var data_history_diagram = new Diagram('history', draw_data_history);
+var data_history_diagram = new Diagram('history', draw_data_history,
+                                       window.innerWidth*0.42);
 
 data_history_diagram.reset = function() {
   this.ctx.restore();

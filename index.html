@@ -2,64 +2,21 @@
 <html>
   <head>
     <meta charset='utf-8'/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Visualizing Dynamic Systems </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script>
-    <style>
-      body {
-        font-family: Georgia;
-        background-color: #fbfaf8;
-        line-height:1.4em;
-      }
-      canvas {
-      }
-      .container {
-        display: inline-block;
-        position: relative;
-        font-variant: small-caps;
-      }
-      .overlay {
-        display: block;
-        position: absolute;
-        z-index: 1;
-      }
-      .derivative {
-        font-family: 'Monaco', 'Consolas', monospace;
-        font-size: 0.6em;
-      }
-      .derivative.error {
-        background-color: rgba(200,0,0,0.2);
-      }
-      .inputdiv {
-        margin: 10px;
-        float: left;
-        font-variant: small-caps;
-      }
-      .inputdiv ul {
-        list-style-type: none;
-        margin-top: 0;
-      }
-      input.derivative {
-        width: 200px;
-      }
-      .var {
-        font-variant: normal;
-        font-style: italic;
-      }
-      #explain > p {
-        font-variant: normal;
-      }
-    </style>
+    <link rel='stylesheet' href='main.css'/>
     <script src='performance-polyfill.js'></script>
   </head>
   <body>
     <h1> Visualizing Dynamic Systems </h1>
     <div class='container'>
-      <canvas id='phase_space' width='500' height='500'>
+      <canvas id='phase_space'>
       </canvas>
-      <canvas id='phase_space_axes' width='500' height='500'
-              style='position: absolute; top: 0; left: 0'>
+      <canvas id='phase_space_axes'
+        style='position: absolute; top: 0; left: 0'>
       </canvas>
       <p class='overlay' style='left: 51%; top: -2%;'>
         position
@@ -69,20 +26,21 @@
       </p>
     </div>
     <div class='container'>
-      <canvas id='position_space' width='200' height='500'>
+      <canvas id='position_space'>
       </canvas>
       <p class='overlay' style='left: 52%; top: -2%;'>
         position
       </p>
     </div>
     <div class='container'>
-      <canvas id='history' width='500' height='500'>
+      <canvas id='history' height='500'>
       </canvas>
       <p class='overlay' style='left: 90%; top: 42%;'>
         time
       </p>
     </div>
-    <div class='inputdiv'>
+    <br/>
+    <div class='inputdiv' style='clear:both;'>
       <label for='damping'>
         Damping ratio (<span class='var'> γ </span>)
       </label>
@@ -108,7 +66,7 @@
         </li>
       </ul>
     </div>
-    <div class='inputdiv'>
+    <div class='inputdiv' id='initial_values'>
       <ul>
         <li>
           <label for='x_nought' > initial x: </label>
@@ -125,7 +83,7 @@
         <input type='checkbox' id='plot_v' value='0'/>
     </div>
     <br/>
-    <div style='clear:both; width: 60%; padding-left: 5%;' id='explain'>
+    <div id='explain'>
       <h2> Explanation </h2>
       <p>
 
